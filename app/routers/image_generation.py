@@ -12,11 +12,12 @@ router = APIRouter()
 def generate_text_to_image(prompt: str = Form(...)):
     api_key = get_api_key()
     if not api_key:
-        logging.error("API key not configured")
-        raise HTTPException(status_code=500, detail="API key not configured")
+        error_message = "API key not configured. Please check the .env file or dependencies.py."
+        logging.error(error_message)
+        raise HTTPException(status_code=500, detail=error_message)
 
-    # Replace {engine_id} with the appropriate engine ID from Stability AI
-    url = "https://api.stability.ai/v1/generation/{engine_id}/text-to-image"  
+    engine_id = "stable-diffusion-v1-6"  # Engine ID for Stable Diffusion v1.6
+    url = f"https://api.stability.ai/v1/generation/{engine_id}/text-to-image"  
     headers = {
         "Authorization": f"Bearer {api_key}"
     }
@@ -25,14 +26,15 @@ def generate_text_to_image(prompt: str = Form(...)):
         "cfg_scale": 7,
         "height": 512,
         "width": 512,
-        "style_preset": "photographic",  # Can be changed as needed
+        "style_preset": "photographic",  # Default style preset
     }
 
     response = requests.post(url, headers=headers, json=data)
 
     if response.status_code != 200:
-        logging.error(f"Error in text-to-image generation: {response.content}")
-        raise HTTPException(status_code=response.status_code, detail=str(response.content))
+        error_message = f"Error in text-to-image generation: Status Code: {response.status_code}, Response: {response.content}"
+        logging.error(error_message)
+        raise HTTPException(status_code=response.status_code, detail=error_message)
 
     logging.info("Text-to-image generation successful")
     return Response(content=response.content, media_type="image/png")
@@ -41,11 +43,12 @@ def generate_text_to_image(prompt: str = Form(...)):
 def generate_image_to_image(image: UploadFile = File(...), prompt: str = Form(...)):
     api_key = get_api_key()
     if not api_key:
-        logging.error("API key not configured")
-        raise HTTPException(status_code=500, detail="API key not configured")
+        error_message = "API key not configured. Please check the .env file or dependencies.py."
+        logging.error(error_message)
+        raise HTTPException(status_code=500, detail=error_message)
 
-    # Replace {engine_id} with the appropriate engine ID
-    url = "https://api.stability.ai/v1/generation/{engine_id}/image-to-image"
+    engine_id = "stable-diffusion-v1-6"  # Engine ID for Stable Diffusion v1.6
+    url = f"https://api.stability.ai/v1/generation/{engine_id}/image-to-image"
     headers = {
         "Authorization": f"Bearer {api_key}"
     }
@@ -57,10 +60,12 @@ def generate_image_to_image(image: UploadFile = File(...), prompt: str = Form(..
     response = requests.post(url, headers=headers, files=files)
 
     if response.status_code != 200:
-        logging.error(f"Error in image-to-image generation: {response.content}")
-        raise HTTPException(status_code=response.status_code, detail=str(response.content))
+        error_message = f"Error in image-to-image generation: Status Code: {response.status_code}, Response: {response.content}"
+        logging.error(error_message)
+        raise HTTPException(status_code=response.status_code, detail=error_message)
 
     logging.info("Image-to-image generation successful")
     return Response(content=response.content, media_type="image/png")
+
 
 

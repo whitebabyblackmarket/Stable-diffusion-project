@@ -8,21 +8,39 @@ image_dir = 'saved_images'
 os.makedirs(image_dir, exist_ok=True)
 
 # Endpoint URL
-url = 'http://127.0.0.1:8000/generate-text-to-image'
+url = 'http://127.0.0.1:8000/generate-text-to-image'  # Adjust if you have a different endpoint
 
 # Headers
 headers = {
-    'Content-Type': 'application/x-www-form-urlencoded',
+    'Content-Type': 'application/json',
     'Accept': 'application/json'  # Expecting a JSON response
 }
 
-# Data to be sent to the API Put your prompt in here for now
-data = {
-    'prompt': 'a race car'  # Replace with your desired prompt
+# Positive and Negative Prompts
+text_prompts = [
+    {
+        "text": "A painting of a cat",  # Positive prompt
+        "weight": 1
+    },
+    {
+        "text": "blurry, bad",  # Negative prompt
+        "weight": -1
+    }
+]
+
+# Request body
+body = {
+    "steps": 30,
+    "width": 1024,
+    "height": 1024,
+    "seed": 0,
+    "cfg_scale": 7,
+    "samples": 1,
+    "text_prompts": text_prompts,
 }
 
 # Sending a POST request to the FastAPI server
-response = requests.post(url, headers=headers, data=data)
+response = requests.post(url, headers=headers, json=body)
 
 # Check if the request was successful
 if response.status_code == 200:
@@ -46,6 +64,3 @@ if response.status_code == 200:
     print(f"Image saved as '{filepath}'")
 else:
     print(f"Error: {response.status_code}, {response.text}")
-
-
-
